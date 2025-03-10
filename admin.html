@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Add Images</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+        .admin-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .admin-form input, .admin-form textarea {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .admin-form button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .gallery-item {
+            position: relative;
+            display: inline-block;
+        }
+        .gallery-item img {
+            max-width: 200px;
+            border-radius: 5px;
+        }
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-form">
+        <h1>Add Image</h1>
+        <input type="file" id="image" accept="image/*">
+        <textarea id="description" placeholder="Description"></textarea>
+        <button onclick="addImage()">Add Image</button>
+    </div>
+    <div class="gallery" id="gallery"></div>
+    <script>
+        function checkLogin() {
+            if (localStorage.getItem('loggedIn') !== 'true') {
+                window.location.href = 'login.html';
+            }
+        }
+
+        function addImage() {
+            const image = document.getElementById('image').files[0];
+            const description = document.getElementById('description').value;
+
+            if (image && description) {
+                const formData = new FormData();
+                formData.append('image', image);
+                formData.append('description', description);
+
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Image added successfully!');
+                    console.log('Image URL:', data.src);
+                    console.log('Description:', data.description);
+                    loadImages(); // Reload images after adding a new one
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            } else {
+                alert('Please select an image and enter a description.');
+            }
+        }
+
+        function loadImages() {
+            fetch('/images')
+                .then(response => response.json())
+                .then(images => {
+                    const gallery = document.getElementById('gallery');
+                    gallery.innerHTML = ''; // Clear existing images
+                    images.forEach(image => {
+                        const galleryItem = document.createElement('div');
+                        galleryItem.className = 'gallery-item';
+                        const imgElement = document.createElement('img');
+                        imgElement.src = `images/${image.src}`;
+                        imgElement.alt = image.description;
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'delete-btn';
+                        deleteBtn.innerText = 'X';
+                        deleteBtn.onclick = () => deleteImage(image.src);
+                        galleryItem.appendChild(imgElement);
+                        galleryItem.appendChild(deleteBtn);
+                        gallery.appendChild(galleryItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching images:', error);
+                });
+        }
+
+        function deleteImage(filename) {
+            fetch(`/images/${filename}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Image deleted successfully!');
+                loadImages(); // Reload images after deleting one
+            })
+            .catch(error => {
+                console.error('Error deleting image:', error);
+            });
+        }
+
+        checkLogin();
+        loadImages(); // Load images when the page loads
+    </script>
+</body>
+</html>

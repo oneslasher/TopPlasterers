@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Services - Top Plasterers</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
 </head>
 <body>
     <nav>
@@ -12,18 +17,15 @@
             <a href="index.html">Top Plasterers</a>
         </div>
         <ul>
-
             <li><a href="index.html">Home</a></li>
-            <li><a href="#contact">Contact</a></li>
+            <li><a href="#contact" class="contact-btn">Contact</a></li>
         </ul>
     </nav>
 
     <section class="services">
         <h1>Our Past Work</h1>
-        <div class="gallery">
-            <img src="service1.jpg" alt="Plastered Wall">
-            <img src="service2.jpg" alt="Ceiling Plaster">
-            <img src="service3.jpg" alt="Finished Room">
+        <div class="gallery" id="gallery">
+            <!-- Images will be dynamically added here -->
         </div>
     </section>
 
@@ -33,5 +35,28 @@
         <p>Kevin: 07894 645035</p>
         <p>Quinton: 07585 578586</p>
     </section>
+
+    <script>
+        document.querySelector('.contact-btn').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Fetch images and descriptions from the server
+        fetch('/images')
+            .then(response => response.json())
+            .then(images => {
+                const gallery = document.getElementById('gallery');
+                images.forEach(image => {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = `images/${image.src}`;
+                    imgElement.alt = image.description;
+                    gallery.appendChild(imgElement);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching images:', error);
+            });
+    </script>
 </body>
 </html>

@@ -3,13 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Plasterers</title>
+    <title>Top Plastering</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .header {
+            position: relative;
+            color: white;
+            text-align: center;
+            padding: 100px 0;
+            background-size: cover;
+            background-position: center;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(5px);
+        }
+        .header .content {
+            position: relative;
+            background: rgba(0, 0, 0, 0.5);
+            display: inline-block;
+            padding: 20px;
+            z-index: 1;
+        }
+        .developer-info {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 12px;
+            color: grey;
+        }
+        .developer-info a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 10px;
+            font-size: 12px;
+            color: grey;
+            text-decoration: none;
+            border: 1px solid grey;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation Bar -->
     <nav>
-        <div class="logo">Top Plasterers</div>
+        <div class="logo">Top Plastering</div>
         <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="services.html">View Services</a></li>
@@ -18,9 +65,9 @@
     </nav>
 
     <!-- Header Section -->
-    <header>
+    <header class="header">
         <div class="content">
-            <h1>Top Plasterers</h1>
+            <h1>Top Plastering</h1>
             <p>Somerset's top plastering experts</p>
             <a href="services.html" class="btn">View services</a>
         </div>
@@ -29,10 +76,8 @@
     <!-- Services Section (Optional Preview Section) -->
     <section class="services">
         <h2>Our Past Work</h2>
-        <div class="gallery">
-            <img src="service1.jpg" alt="Plastered Wall">
-            <img src="service2.jpg" alt="Ceiling Plaster">
-            <img src="service3.jpg" alt="Finished Room">
+        <div class="gallery" id="gallery">
+            <!-- Images will be dynamically added here -->
         </div>
     </section>
 
@@ -43,5 +88,40 @@
         <p>Kevin: 07894 645035</p>
         <p>Quinton: 07585 578586</p>
     </section>
+
+    <!-- Developer Info Section -->
+    <section class="developer-info">
+        <p>Website developed by William Driscoll. Click for more info.</p>
+        <a href="william.html">More Info</a>
+    </section>
+
+    <script>
+        document.querySelector('.contact-btn').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Fetch images and descriptions from the server
+        fetch('/images')
+            .then(response => response.json())
+            .then(images => {
+                const gallery = document.getElementById('gallery');
+                const recentImages = images.slice(-4).reverse(); // Get the most recent 4 images
+                recentImages.forEach(image => {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = `images/${image.src}`;
+                    imgElement.alt = image.description;
+                    gallery.appendChild(imgElement);
+                });
+
+                // Select a random image for the header background
+                const randomImage = images[Math.floor(Math.random() * images.length)];
+                document.querySelector('.header').style.backgroundImage = `url('images/${randomImage.src}')`;
+                document.querySelector('.header::before').style.backgroundImage = `url('images/${randomImage.src}')`;
+            })
+            .catch(error => {
+                console.error('Error fetching images:', error);
+            });
+    </script>
 </body>
 </html>
